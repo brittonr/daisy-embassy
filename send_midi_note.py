@@ -43,12 +43,14 @@ def send_note(note=69, duration=0.5):
     result = subprocess.run(['aconnect', '-l'], capture_output=True, text=True)
     port = None
     for line in result.stdout.split('\n'):
-        if 'USB MIDI' in line or 'Synth' in line or 'Daisy' in line:
-            # Extract port number (format: "client XX:")
-            parts = line.strip().split()
-            if len(parts) > 0 and parts[0].replace(':', '').isdigit():
-                port = parts[0].replace(':', '')
-                break
+        if 'USB MIDI' in line or 'Synth' in line or 'Daisy' in line or 'Granular' in line:
+            # Look for "client XX:" pattern
+            if line.strip().startswith('client'):
+                parts = line.strip().split()
+                if len(parts) > 1:
+                    # parts[1] is "20:" - extract the number
+                    port = parts[1].replace(':', '')
+                    break
 
     if not port:
         print("Error: Could not find Daisy MIDI device")
