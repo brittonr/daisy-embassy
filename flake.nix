@@ -39,6 +39,7 @@
           systemd
 
           # MIDI tools
+          python3
           alsa-utils      # aconnect, aplaymidi, amidi
           qjackctl        # JACK MIDI routing
           vmpk            # Virtual MIDI Piano Keyboard
