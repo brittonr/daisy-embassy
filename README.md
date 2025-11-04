@@ -1,5 +1,18 @@
 # daisy-embassy
 
+> **⚠️ WARNING: Experimental Fork / AI-Generated Code**
+>
+> This is an experimental fork created with Claude AI assistance for learning and exploration. This repository contains:
+> - A critical USB MIDI parsing fix (4-byte packets instead of 3-byte)
+> - Various debugging and testing examples
+> - AI-generated documentation and tooling
+>
+> **Use at your own risk. For production use, refer to the official [daisy-embassy](https://github.com/daisy-embassy/daisy-embassy) repository.**
+>
+> The main contribution here is the USB MIDI fix documented in `USB_MIDI_SYNTH.md` - consider submitting it as a PR to upstream!
+
+---
+
 `daisy-embassy` is a Rust crate for building **embedded async audio applications** on the [Daisy Seed](https://electro-smith.com/products/daisy-seed) using the [Embassy framework](https://github.com/embassy-rs/embassy). It provides a streamlined interface to initialize and configure Daisy Seed hardware for **both** low-latency, non-blocking audio processing **and** powerful asynchronous application processing, making it an **ideal starting point** for embedded audio projects in Rust.
 
 This crate is designed for developers familiar with embedded systems and audio processing, but new to Rust's embedded ecosystem. It enables safe and flexible audio application development, leveraging Rust's type system to prevent common peripheral configuration errors at compile time.
