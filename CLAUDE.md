@@ -127,6 +127,50 @@ See `examples/usb_midi_synth.rs` for the correct reference implementation. See `
 - Buffer size: Configurable via `AudioPeripherals::set_buffer_size()`
 - Conversion helper: `f32_to_u24()` converts float samples to hardware format
 
+## Using SDRAM (64MB External Memory)
+
+The Daisy Seed has 64MB of external SDRAM at address `0xD000_0000`, perfect for large audio buffers, loopers, or delay lines.
+
+### Initialization
+
+```rust
+let mut core = cortex_m::Peripherals::take().unwrap();
+let mut sdram = board.sdram.build(&mut core.MPU, &mut core.SCB);
+let mut delay = Delay;
+
+let ram_slice = unsafe {
+    let ram_ptr: *mut u32 = sdram.init(&mut delay) as *mut _;
+    core::slice::from_raw_parts_mut(ram_ptr, SDRAM_SIZE / core::mem::size_of::<u32>())
+};
+
+// Initialize to zero
+for i in 0..buffer_size {
+    ram_slice[i] = 0;
+}
+```
+
+### SDRAM Capacity
+
+- **Total**: 64MB (67,108,864 bytes)
+- **As u32 samples**: 16,777,216 samples
+- **Stereo audio at 48kHz**: ~341 seconds (5.7 minutes)
+- **Mono audio at 48kHz**: ~682 seconds (11.4 minutes)
+
+### Example Use Cases
+
+- **Delay/Reverb**: Use circular buffer for echo effects (see `examples/usb_midi_synth_delay.rs`)
+- **Looper**: Record and playback audio loops
+- **Granular Synthesis**: Store source material for grain generation
+- **Wavetable Synthesis**: Store large wavetables
+- **Sample Playback**: Load and play audio samples
+
+### Important Notes
+
+- SDRAM is configured with MPU for write-through caching
+- Slower than internal SRAM but much larger
+- Suitable for delay buffers, not real-time critical data
+- Access from audio callback is safe but add latency consideration
+
 ## Common Pitfalls
 
 1. **Memory ordering**: Always use `Ordering::SeqCst` for atomics shared between audio interrupt and async tasks
@@ -134,6 +178,7 @@ See `examples/usb_midi_synth.rs` for the correct reference implementation. See `
 3. **Board features**: Only one board feature can be active; using wrong feature causes hardware mismatch
 4. **Audio callback blocking**: Never use async/.await or blocking operations in audio callback - it runs in interrupt context
 5. **DMA buffer placement**: Audio buffers must be in appropriate memory regions (handled automatically by framework)
+6. **SDRAM access**: Initialize SDRAM before using it in audio callback; store pointer globally if needed
 
 ## Testing MIDI
 
